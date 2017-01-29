@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 FILE *input_file;
-//int *board[81];
 
 // Function to check if a given choice of a value conflicts with what's already on the board
 int checkConflict(int value, int cell, int* board) {
@@ -55,6 +54,7 @@ int main(int argc, char *argv[]) {
     int j;
     char buff[256];
 
+    // read file and record what's on the board
     int *board = (int*) malloc(sizeof(int) * 81);
       
     while(fgets(buff, sizeof(buff), input_file) && i < 9) {
@@ -75,6 +75,7 @@ int main(int argc, char *argv[]) {
 	}
 	printf("\n");
     }
+
     // perform dfs
     printf("%s\n", checkConflict(3,2, board));
     printf("%s\n", checkConflict(4,2, board));    
