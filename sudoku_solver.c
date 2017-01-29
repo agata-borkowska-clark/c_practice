@@ -4,7 +4,7 @@
 FILE *input_file;
 
 // Function to check if a given choice of a value conflicts with what's already on the board
-int checkConflict(int value, int cell, int* board) {
+int checkConflict(const int value, const int cell, const int* board) {
 	int x = cell % 9; // column
 	int y = cell / 9; // row
 	int i, j;
@@ -26,8 +26,8 @@ int checkConflict(int value, int cell, int* board) {
 
 	// check small squares
 	// work out which small square we're in
-	int x2 = x / 3;
-	int y2 = y / 3;
+	int x2 = (x / 3) * 3;
+	int y2 = (y / 3) * 3;
 	// iterate over the cells in that square
 	for (i = 0; i < 3; i++) {
 		for (j = 0; j < 3; j++) {
@@ -39,7 +39,10 @@ int checkConflict(int value, int cell, int* board) {
 	return result;
 }
 
+// DFS
+int dfs(int* board) {
 
+}
 
 int main(int argc, char *argv[]) {
     input_file = fopen(argv[1], "r");
@@ -69,6 +72,8 @@ int main(int argc, char *argv[]) {
 	 i++;
     }
     
+    // print the original board
+    printf("The original board is:\n");
     for(i = 0; i < 9; i++) {
 	for(j = 0; j < 9; j++) {
 		printf("%d", board[j + 9*i]);
@@ -76,9 +81,10 @@ int main(int argc, char *argv[]) {
 	printf("\n");
     }
 
+    printf("\nThe solution is:\n");
     // perform dfs
-    printf("%s\n", checkConflict(3,2, board));
-    printf("%s\n", checkConflict(4,2, board));    
+    printf("%d\n", checkConflict(3,2, board));
+    printf("%d\n", checkConflict(4,2, board));    
     void free(void *board);
     return 0;
 
