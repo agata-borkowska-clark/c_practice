@@ -4,6 +4,7 @@
 FILE *input_file;
 
 // Function to check if a given choice of a value conflicts with what's already on the board
+// returns 1 for success, 0 o/w
 int check_conflict(int cell, int value, int* board) {
 	int x = cell % 9; // column
 	int y = cell / 9; // row
@@ -55,29 +56,24 @@ void print_board(int* board) {
 }
 
 // perform dfs
-int dfs(int cell, int val, int* board) {
-	int i = cell;
-	if (i == 81) {
-		printf("last cell\n");
+int dfs(int cell, int* board) {
+	if (cell == 81) {
 		return 1; // we reached the last cell
+	} else if (board[cell]) {
+	       return dfs(cell+1, board);
 	} else {
-		int j;
-		if (!board[i] && !check_conflict(i, val, board)) {
-			// check that current cell isn't empty and we canput 
-			// val in it. If not...
-			return 0;
-		} else {
-			int board_val = board[i];
-			if (!board[i]) {
-				board[i] = val;
-			}
-			for (j = 1; j < 10; j++) {
-				if (dfs(i+1, j, board)) {
+		for (int j = 1; j < 10; j++){
+			if (check_conflict(cell, j, board)) {
+				// check that current cell isn't empty and we can put 
+				// j in it. If so,
+				board[cell] = j;
+				int child = dfs(cell + 1, board);
+				if (child) {
 					return 1;
+				} else {
+					board[cell] = 0;
 				}
 			}
-			board[i] = board_val;
-			return 0;
 		}
 	}	
 	return 0;
@@ -114,12 +110,10 @@ int main(int argc, char *argv[]) {
 	print_board(board);
 
 	// perform dfs
-	for (i = 1; i<10;i++) {
-		if(dfs(0,i,board)) {
+	
+		if(dfs(0,board)) {
 			print_board(board);
-			break;
 		}
-	}
 	//printf("%d\n", check_conflict(3,78, board));
 	//printf("%d\n", check_conflict(7,78, board));	
 	void free(void *board);
