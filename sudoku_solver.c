@@ -2,19 +2,19 @@
 #include <stdlib.h>
 
 FILE *input_file;
+typedef enum {SUCCESS, CONFLICT_IN_ROW, CONFLICT_IN_COLUMN, CONFLICT_IN_SUB_SQUARE} Check_Status;
 
 // Function to check if a given choice of a value conflicts with what's already on the board
-// returns 1 for success, 0 o/w
-int check_conflict(int cell, int value, int* board) {
+Check_Status check_conflict(int cell, int value, int* board) {
 	int x = cell % 9; // column
 	int y = cell / 9; // row
 	int i, j;
-	int result = 1;
+	Check_Status result = SUCCESS;
 
 	// check row conflicts
 	for (i = 0; i < 9; i++) {
 		if (board[cell-x+i] == value) {
-			result = 0;
+			result = CONFLICT_IN_ROW;
 			break;
 		}
 	}
@@ -22,7 +22,7 @@ int check_conflict(int cell, int value, int* board) {
 	// check column conflicts
 	for (i = 0; i < 9; i++) {
 		if (board[x + 9*i] == value) {
-			result = 0;
+			result = CONFLICT_IN_COLUMN;
 			break;
 		}
 	}
@@ -35,7 +35,7 @@ int check_conflict(int cell, int value, int* board) {
 	for (i = 0; i < 3; i++) {
 		for (j = 0; j < 3; j++) {
 			if (board[x2 + i + (y2 + j) * 9] == value) {
-				result = 0;
+				result = CONFLICT_IN_SUB_SQUARE;
 				break;
 			}
 		}
@@ -56,27 +56,30 @@ void print_board(int* board) {
 }
 
 // perform dfs
-int dfs(int cell, int* board) {
+Check_Status dfs(int cell, int* board) {
 	if (cell == 81) {
-		return 1; // we reached the last cell
+		return SUCCESS; // we reached the last cell
 	} else if (board[cell]) {
-	       return dfs(cell+1, board);
+		return dfs(cell + 1, board);
 	} else {
+		Check_Status result;
 		for (int j = 1; j < 10; j++){
-			if (check_conflict(cell, j, board)) {
+			result = check_conflict(cell, j, board); 
+			if (result == SUCCESS) {
 				// check that current cell isn't empty and we can put 
 				// j in it. If so,
 				board[cell] = j;
-				int child = dfs(cell + 1, board);
-				if (child) {
-					return 1;
+				Check_Status child = dfs(cell + 1, board);
+				if (child == SUCCESS) {
+					return SUCCESS;
 				} else {
 					board[cell] = 0;
+					result = child;
 				}
 			}
 		}
+		return result;
 	}	
-	return 0;
 }
 
 int main(int argc, char *argv[]) {
@@ -88,15 +91,13 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}  
 	
-	int i = 0;
-	int j;
-	char buff[256];
-
 	// read file and record what's on the board
 	int *board = (int*) malloc(sizeof(int) * 81);
 	  
+	char buff[256];
+	int i = 0;
 	while(fgets(buff, sizeof(buff), input_file) && i < 9) {
-		for (j = 0; j < 9; j++) {
+		for (int j = 0; j < 9; j++) {
 			int x = buff[j] - '0';
 			if (0 <= x && x < 10) {
 				board[j + 9*i] = x;
@@ -107,13 +108,17 @@ int main(int argc, char *argv[]) {
 		i++;
 	}
 	
+	printf("This is the original board:\n");
 	print_board(board);
 
 	// perform dfs
 	
-		if(dfs(0,board)) {
-			print_board(board);
-		}
+	if(dfs(0, board) == SUCCESS) {
+		printf("This is the solution:\n");
+		print_board(board);
+	} else {
+		printf("The board is incorrect\n");
+	}
 	//printf("%d\n", check_conflict(3,78, board));
 	//printf("%d\n", check_conflict(7,78, board));	
 	void free(void *board);
