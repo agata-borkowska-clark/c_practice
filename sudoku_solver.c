@@ -3,7 +3,12 @@
 
 FILE *input_file;
 // enumerate return codes
-typedef enum {SUCCESS=1, CONFLICT_IN_ROW, CONFLICT_IN_COLUMN, CONFLICT_IN_SUB_SQUARE} Check_Status;
+typedef enum {
+	SUCCESS=1, 
+	CONFLICT_IN_ROW, 
+	CONFLICT_IN_COLUMN, 
+	CONFLICT_IN_SUB_SQUARE
+} Check_Status;
 
 // Function to check if a given choice of a value conflicts with what's already on the board
 Check_Status check_conflict(int cell, int value, int* board) {
@@ -14,7 +19,7 @@ Check_Status check_conflict(int cell, int value, int* board) {
 	// check row conflicts
 	int i, j;
 	for (i = 0; i < 9; i++) {
-		if (board[cell-x+i] == value) {
+		if (board[cell-x+i] == value && cell - x + i != cell) {
 			result = CONFLICT_IN_ROW;
 			break;
 		}
@@ -22,7 +27,7 @@ Check_Status check_conflict(int cell, int value, int* board) {
 
 	// check column conflicts
 	for (i = 0; i < 9; i++) {
-		if (board[x + 9*i] == value) {
+		if (board[x + 9*i] == value && x + 9 * i != cell) {
 			result = CONFLICT_IN_COLUMN;
 			break;
 		}
@@ -35,7 +40,8 @@ Check_Status check_conflict(int cell, int value, int* board) {
 	// Iterate over the cells in that square.
 	for (i = 0; i < 3; i++) {
 		for (j = 0; j < 3; j++) {
-			if (board[x2 + i + (y2 + j) * 9] == value) {
+			if (board[x2 + i + (y2 + j) * 9] == value 
+					&& x2 + i + (y2+j) * 9 != cell) {
 				result = CONFLICT_IN_SUB_SQUARE;
 				break;
 			}
@@ -61,8 +67,13 @@ Check_Status dfs(int cell, int* board) {
 	if (cell == 81) {
 		return SUCCESS; // We reached the last cell, succscience.
 	} else if (board[cell]) {
-		return dfs(cell + 1, board); // This cell is filled from the 
-		// start, so we just need to pass on the result of its children
+		Check_Status result = check_conflict(cell, board[cell], board);
+		if (result == SUCCESS) {
+			return dfs(cell + 1, board); // This cell is filled from the 
+			// start, so we just need to pass on the result of its children
+		} else {
+			return result;
+		}
 	} else {
 		Check_Status result;
 		for (int j = 1; j < 10; j++){
