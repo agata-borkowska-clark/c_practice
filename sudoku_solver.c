@@ -14,6 +14,7 @@ int check_conflict(int value, int cell, int* board) {
 	for (i = 0; i < 9; i++) {
 		if (board[cell-x+i] == value) {
 			result = 0;
+			break;
 		}
 	}
 
@@ -21,6 +22,7 @@ int check_conflict(int value, int cell, int* board) {
 	for (i = 0; i < 9; i++) {
 		if (board[x + 9*i] == value) {
 			result = 0;
+			break;
 		}
 	}
 
@@ -33,6 +35,7 @@ int check_conflict(int value, int cell, int* board) {
 		for (j = 0; j < 3; j++) {
 			if (board[x2 + i + (y2 + j) * 9] == value) {
 				result = 0;
+				break;
 			}
 		}
 	}
@@ -52,7 +55,8 @@ void print_board(int* board) {
 }
 
 // perform dfs
-int dfs(int i, int val, int* board) {
+int dfs(int cell, int val, int* board) {
+	int i = cell;
 	if (i == 81) {
 		return 1; // we reached the last cell
 	} else {
@@ -62,18 +66,18 @@ int dfs(int i, int val, int* board) {
 			// val in it. If not...
 			return 0;
 		} else {
+			i = i+1;
 			for (j = 1; j < 10; j++) {
-				if (dfs(i++, j, board)) {
+				if (dfs(i, j, board)) {
 					if (!board[i]) {
 						board[i] = val;
 					}
 					return 1;
-				} else {
-					return 0;
 				}
 			}
+			return 0;
 		}
-	}
+	}	
 	return 0;
 }
 
@@ -108,8 +112,12 @@ int main(int argc, char *argv[]) {
 	print_board(board);
 
 	// perform dfs
-	dfs(0,1,board);
-	print_board(board);
+	for (i = 1; i<10;i++) {
+		if(dfs(0,i,board)) {
+			print_board(board);
+			break;
+		}
+	}
 	//printf("%d\n", check_conflict(3,78, board));
 	//printf("%d\n", check_conflict(7,78, board));	
 	void free(void *board);
