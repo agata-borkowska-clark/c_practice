@@ -4,7 +4,7 @@
 FILE *input_file;
 
 // Function to check if a given choice of a value conflicts with what's already on the board
-int check_conflict(int value, int cell, int* board) {
+int check_conflict(int cell, int value, int* board) {
 	int x = cell % 9; // column
 	int y = cell / 9; // row
 	int i, j;
@@ -28,8 +28,8 @@ int check_conflict(int value, int cell, int* board) {
 
 	// check small squares
 	// work out which small square we're in
-	int x2 = x / 3;
-	int y2 = y / 3;
+	int x2 = (x / 3) * 3;
+	int y2 = (y / 3) * 3;
 	// iterate over the cells in that square
 	for (i = 0; i < 3; i++) {
 		for (j = 0; j < 3; j++) {
@@ -58,23 +58,25 @@ void print_board(int* board) {
 int dfs(int cell, int val, int* board) {
 	int i = cell;
 	if (i == 81) {
+		printf("last cell\n");
 		return 1; // we reached the last cell
 	} else {
 		int j;
-		if (!board[i] && !check_conflict(val, i, board)) {
+		if (!board[i] && !check_conflict(i, val, board)) {
 			// check that current cell isn't empty and we canput 
 			// val in it. If not...
 			return 0;
 		} else {
-			i = i+1;
+			int board_val = board[i];
+			if (!board[i]) {
+				board[i] = val;
+			}
 			for (j = 1; j < 10; j++) {
-				if (dfs(i, j, board)) {
-					if (!board[i]) {
-						board[i] = val;
-					}
+				if (dfs(i+1, j, board)) {
 					return 1;
 				}
 			}
+			board[i] = board_val;
 			return 0;
 		}
 	}	
